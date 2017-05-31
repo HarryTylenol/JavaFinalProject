@@ -8,6 +8,7 @@ import sun.security.timestamp.Timestamper;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.security.Timestamp;
@@ -24,14 +25,16 @@ public class WeatherView extends JFrame {
     private JLabel windDeg = new JLabel();
     private JLabel sunrise = new JLabel();
     private JLabel sunset = new JLabel();
-    private Image image;
+    private JLabel icon;
+    private ImageIcon imageIcon;
 
     public WeatherView() {
         JPanel jp = new JPanel();
-            String dir = System.getProperty("user.dir");
-            System.out.println(dir);
 
-        setSize(300, 150);
+        String dir = System.getProperty("user.dir");
+        System.out.println(dir);
+
+        setSize(210, 150);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -42,6 +45,17 @@ public class WeatherView extends JFrame {
         jp.add(windDeg);
         jp.add(sunrise);
         jp.add(sunset);
+
+        imageIcon = new ImageIcon(System.getProperty("user.dir") + "/blue.png");
+
+        Image img = imageIcon.getImage();
+        Image finalImage = img.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+        imageIcon = new ImageIcon(finalImage);
+
+        icon = new JLabel(imageIcon, JLabel.CENTER);
+        icon.setVerticalTextPosition(JLabel.CENTER);
+
+        jp.add(icon);
 
         jp.setLayout(new FlowLayout());
 
@@ -66,5 +80,20 @@ public class WeatherView extends JFrame {
 
     }
 
+    private Image getScaledImage(Image srcImg, int w, int h){
+
+        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2 = resizedImg.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        g2.drawImage(srcImg, 0, 0, w, h, null);
+
+        g2.dispose();
+
+        return resizedImg;
+
+    }
 
 }
