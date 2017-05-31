@@ -2,8 +2,8 @@ package model;
 
 public class WeatherInfoSys {
     private String country;
-    private int sunrise;
-    private int sunset;
+    private long sunrise;
+    private long sunset;
     private int id;
     private int type;
     private double message;
@@ -16,16 +16,16 @@ public class WeatherInfoSys {
         this.country = country;
     }
 
-    public int getSunrise() {
-        return this.sunrise;
+    public long getSunrise() {
+        return this.sunrise * 1000;
     }
 
     public void setSunrise(int sunrise) {
         this.sunrise = sunrise;
     }
 
-    public int getSunset() {
-        return this.sunset;
+    public long getSunset() {
+        return this.sunset * 1000;
     }
 
     public void setSunset(int sunset) {

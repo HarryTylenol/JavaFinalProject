@@ -28,7 +28,7 @@ public class RetrofitManager {
         return getRetrofit().create(WeatherInfoInterface.class);
     }
 
-    public Observable<WeatherInfo> getWetherInfoCall(String cityName) {
+    public Observable<WeatherInfo> getWeatherInfoCall(String cityName) {
         return getWeatherInfoInterface().getWeatherInfo(key, cityName);
     }
 

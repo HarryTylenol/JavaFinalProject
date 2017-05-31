@@ -33,7 +33,7 @@ public class WeatherInfoPresenterImp implements WeatherInfoPresenter {
         for (String city : cities) {
             System.out.println(city + " Detected");
             retrofitManager
-                    .getWetherInfoCall(city)
+                    .getWeatherInfoCall(city)
                     .subscribe(new Observer<WeatherInfo>() {
                         @Override
                         public void onSubscribe(Disposable d) {
