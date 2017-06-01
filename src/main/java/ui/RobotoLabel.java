@@ -15,15 +15,16 @@ public class RobotoLabel extends JLabel {
     final  static String REGULAR = "REGULAR";
 
     public RobotoLabel() {
-        setForeground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
     public RobotoLabel(String text) {
         super(text);
-        setForeground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
 
+    public void setColor(Color color) {
+        setForeground(color);
     }
 
     public void setTextAndAdd(String string, Box box) {

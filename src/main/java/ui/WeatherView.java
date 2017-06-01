@@ -41,6 +41,9 @@ public class WeatherView extends JFrame {
 
     private int index = 0;
 
+    // TODO 여기가 텍스트 전체 색상 바꾸는곳
+    private Color frontColor = Color.WHITE;
+
     public WeatherView() {
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,6 +55,7 @@ public class WeatherView extends JFrame {
 
         Arrays.stream(jLabelProperties).forEach(string -> {
             RobotoLabel newLabel = new RobotoLabel(string);
+            newLabel.setColor(frontColor);
             newLabel.setFontFromString(jLabelFontList[index], jLabelSize[index]);
             labelHashMap.put(string, newLabel);
             index++;
@@ -101,8 +105,10 @@ public class WeatherView extends JFrame {
 
             RobotoLabel title1 = new RobotoLabel();
             title1.setFontFromString(RobotoLabel.BOLD, 18f);
+            title1.setColor(frontColor);
             RobotoLabel title2 = new RobotoLabel();
             title2.setFontFromString(RobotoLabel.BOLD, 18f);
+            title2.setColor(frontColor);
             // Add All
             box.add(weatherStatus);
             box.add(labelHashMap.get("temp"));
@@ -119,7 +125,6 @@ public class WeatherView extends JFrame {
     }
 
     public void showWindow() {
-
         getContentPane().setBackground(translucent);
         setBackground(translucent);
         setVisible(true);
