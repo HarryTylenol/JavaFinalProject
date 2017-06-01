@@ -1,99 +1,140 @@
 package ui;
 
 import model.WeatherInfo;
-import sun.security.timestamp.TSRequest;
-import sun.security.timestamp.TSResponse;
-import sun.security.timestamp.Timestamper;
+import model.WeatherInfoMain;
+import model.WeatherInfoSys;
+import model.WeatherInfoWind;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.security.Timestamp;
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
 public class WeatherView extends JFrame {
 
-    private JLabel tempMin = new JLabel();
-    private JLabel temp = new JLabel();
-    private JLabel tempMax = new JLabel();
-    private JLabel windSpeed = new JLabel();
-    private JLabel windDeg = new JLabel();
-    private JLabel sunrise = new JLabel();
-    private JLabel sunset = new JLabel();
-    private JLabel icon;
-    private ImageIcon imageIcon;
+    private String[] jLabelProperties = {
+            "temp",
+            "tempDetail",
+            "windDetail",
+            "sunrise",
+            "sunset"
+    };
+
+    private String[] jLabelFontList = {
+            RobotoLabel.LIGHT,
+            RobotoLabel.LIGHT,
+            RobotoLabel.BOLD,
+            RobotoLabel.BOLD,
+            RobotoLabel.BOLD
+    };
+
+    private float[] jLabelSize = {48f, 18f, 12f, 12f, 12f};
+
+    private Color translucent = new Color(0, 0, 0, 0);
+
+    private HashMap<String, RobotoLabel> labelHashMap;
+
+    private Box box = Box.createVerticalBox();
+
+    private int index = 0;
 
     public WeatherView() {
-        JPanel jp = new JPanel();
-
-        String dir = System.getProperty("user.dir");
-        System.out.println(dir);
-
-        setSize(210, 150);
-        setVisible(true);
+        setUndecorated(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(325, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setPanelAttribute();
 
-        jp.add(tempMin);
-        jp.add(temp);
-        jp.add(tempMax);
-        jp.add(windSpeed);
-        jp.add(windDeg);
-        jp.add(sunrise);
-        jp.add(sunset);
+        labelHashMap = new HashMap<>();
 
-        imageIcon = new ImageIcon(System.getProperty("user.dir") + "/blue.png");
-
-        Image img = imageIcon.getImage();
-        Image finalImage = img.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
-        imageIcon = new ImageIcon(finalImage);
-
-        icon = new JLabel(imageIcon, JLabel.CENTER);
-        icon.setVerticalTextPosition(JLabel.CENTER);
-
-        jp.add(icon);
-
-        jp.setLayout(new FlowLayout());
-
-        add(jp);
+        Arrays.stream(jLabelProperties).forEach(string -> {
+            RobotoLabel newLabel = new RobotoLabel(string);
+            newLabel.setFontFromString(jLabelFontList[index], jLabelSize[index]);
+            labelHashMap.put(string, newLabel);
+            index++;
+        });
 
     }
 
-    public void setWeatherData(HashMap<String, WeatherInfo> weatherInfoArrayList) {
-        WeatherInfo weatherInfo = (WeatherInfo)weatherInfoArrayList.values().toArray()[0];
-        tempMin.setText(Double.toString(weatherInfo.getMain().getTemp_min()));
-        temp.setText(Double.toString(weatherInfo.getMain().getTemp()));
-        tempMax.setText(Double.toString(weatherInfo.getMain().getTemp_max()));
-        windSpeed.setText(Double.toString(weatherInfo.getWind().getSpeed()));
-        windDeg.setText(Integer.toString(weatherInfo.getWind().getDeg()));
+    WeatherPanel tempDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+    WeatherPanel windDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+    WeatherPanel sunDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
 
-        Date sunriseDate = new Date(weatherInfo.getSys().getSunrise());
-        Date sunsetDate = new Date(weatherInfo.getSys().getSunset());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+    public void setWeatherData(HashMap<String, WeatherInfo> infoArrayList) throws IOException {
+        WeatherInfo info = (WeatherInfo) infoArrayList.values().toArray()[0];
 
-        sunrise.setText(simpleDateFormat.format(sunriseDate));
-        sunset.setText(simpleDateFormat.format(sunsetDate));
+        WeatherInfoMain infoMain = info.getMain();
+        WeatherInfoSys infoSys = info.getSys();
+        WeatherInfoWind infoWind = info.getWind();
+
+        Date sunriseDate = new Date(infoSys.getSunrise());
+        Calendar sunriseCalendar = Calendar.getInstance();
+        sunriseCalendar.setTime(sunriseDate);
+
+        Date sunsetDate = new Date(infoSys.getSunset());
+        Calendar sunsetCalendar = Calendar.getInstance();
+        sunsetCalendar.setTime(sunsetDate);
+
+        ClassLoader loader = ClassLoader.getSystemClassLoader();
+        if (loader != null) {
+            // ICON
+            String weatherIconCode = info.getWeather()[0].getIcon().replaceAll("(n+|d+)", "");
+            IconView weatherStatus = new IconView(50, 50, weatherIconCode + ".png");
+            IconView windIcon = new IconView(30, 30, "ic_wind" + ".png");
+            IconView sunIcon = new IconView(30, 30, "ic_wb_sunny" + ".png");
+            windIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            sunIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            labelHashMap.get("temp").setTextAndAdd(String.format("%1.0f°C", infoMain.getTemp() - 273.15), box);
+            labelHashMap.get("tempDetail").setTextAndAdd(String.format("MAX : %1.0f°C / ", infoMain.getTemp_max() - 273.15) + String.format("MIN : %1.0f°C", infoMain.getTemp_min() - 273.15), box);
+            tempDetail.add(labelHashMap.get("tempDetail"));
+
+            labelHashMap.get("windDetail").setTextAndAdd(String.format("%1.0fms / ", infoWind.getSpeed()) + String.format("%d°", infoWind.getDeg()), box);
+            windDetail.add(labelHashMap.get("windDetail"));
+
+            labelHashMap.get("sunrise").setTextAndAdd("SUN RISE : " + sunriseCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunriseCalendar.get(Calendar.MINUTE), box);
+            labelHashMap.get("sunset").setTextAndAdd("SUN SET : " + sunsetCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunsetCalendar.get(Calendar.MINUTE), box);
+            sunDetail.addAll(labelHashMap.get("sunrise"), labelHashMap.get("sunset"));
+
+            RobotoLabel title1 = new RobotoLabel();
+            title1.setFontFromString(RobotoLabel.BOLD, 18f);
+            RobotoLabel title2 = new RobotoLabel();
+            title2.setFontFromString(RobotoLabel.BOLD, 18f);
+            // Add All
+            box.add(weatherStatus);
+            box.add(labelHashMap.get("temp"));
+            box.add(tempDetail);
+            box.add(windIcon);
+            box.add(title1.setTextAndReturn("Wind"));
+            box.add(windDetail);
+            box.add(sunIcon);
+            box.add(title2.setTextAndReturn("Sun"));
+            box.add(sunDetail);
+            add(box);
+        }
 
     }
 
-    private Image getScaledImage(Image srcImg, int w, int h){
+    public void showWindow() {
 
-        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        getContentPane().setBackground(translucent);
+        setBackground(translucent);
+        setVisible(true);
 
-        Graphics2D g2 = resizedImg.createGraphics();
+    }
 
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    public void setPanelAttribute() {
+        JRootPane root = getRootPane();
+        root.putClientProperty("Window.shadow", Boolean.FALSE);
 
-        g2.drawImage(srcImg, 0, 0, w, h, null);
-
-        g2.dispose();
-
-        return resizedImg;
-
+        box.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        box.setBackground(translucent);
+        tempDetail.setBackground(translucent);
+        windDetail.setBackground(translucent);
+        sunDetail.setBackground(translucent);
     }
 
 }
