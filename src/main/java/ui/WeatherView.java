@@ -4,20 +4,17 @@ import model.WeatherInfo;
 import model.WeatherInfoMain;
 import model.WeatherInfoSys;
 import model.WeatherInfoWind;
+import presenter.WeatherInfoPresenterImp;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
-public class WeatherView extends JFrame {
-
-    private JButton selectLocationButton;
-    private JButton menu;
+public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View {
 
     private String[] jLabelProperties = {
             "temp",
@@ -41,13 +38,26 @@ public class WeatherView extends JFrame {
 
     private HashMap<String, RobotoLabel> labelHashMap = new HashMap<>();
 
-    private Box box = Box.createVerticalBox();
-
     private int index = 0;
 
     private Color frontColor = Color.WHITE;
 
+    WeatherInfoPresenterImp weatherInfoPresenterImp = new WeatherInfoPresenterImp();
+
+    private Box box = Box.createVerticalBox();
+    private WeatherPanel tempDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+    private WeatherPanel windDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+    private WeatherPanel sunDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+
+    private RobotoLabel title1 = new RobotoLabel();
+    private RobotoLabel title2 = new RobotoLabel();
+
+    IconView weatherStatus;
+    IconView windIcon;
+    IconView sunIcon;
+
     public WeatherView() {
+        setTitle("Widther");
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(325, 600);
@@ -62,18 +72,26 @@ public class WeatherView extends JFrame {
             index++;
         });
 
+        businessLogicMain("Seoul");
     }
 
-    WeatherPanel tempDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
-    WeatherPanel windDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
-    WeatherPanel sunDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
+    public void businessLogicMain(String name) {
+        weatherInfoPresenterImp.setWeatherInfoPresenter(this);
+        weatherInfoPresenterImp.getData(name);
+    }
+
+    @Override
+    public void setView(HashMap<String, WeatherInfo> weatherInfoArrayList) {
+        try {
+            setWeatherData(weatherInfoArrayList);
+            showWindow();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
 
     public void setWeatherData(HashMap<String, WeatherInfo> infoArrayList) throws IOException {
-        selectLocationButton = new JButton("White");
-        menu = new JButton("Menu");
-
         WeatherInfo info = (WeatherInfo) infoArrayList.values().toArray()[0];
-
         WeatherInfoMain infoMain = info.getMain();
         WeatherInfoSys infoSys = info.getSys();
         WeatherInfoWind infoWind = info.getWind();
@@ -91,34 +109,38 @@ public class WeatherView extends JFrame {
             // ICON
             String weatherIconCode = info.getWeather()[0].getIcon().replaceAll("(n+|d+)", "");
             System.out.println(weatherIconCode);
-            IconView weatherStatus = new IconView(50, 50, weatherIconCode + ".png");
-            IconView windIcon = new IconView(30, 30, "ic_wind" + ".png");
-            IconView sunIcon = new IconView(30, 30, "ic_wb_sunny" + ".png");
+            weatherStatus = new IconView(50, 50, weatherIconCode + ".png");
+            windIcon = new IconView(30, 30, "ic_wind" + ".png");
+            sunIcon = new IconView(30, 30, "ic_wb_sunny" + ".png");
             windIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             sunIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            menu.addActionListener(new LocationMenu());
+            labelHashMap.get("temp").setText(String.format("%1.0f°C", infoMain.getTemp() - 273.15));
+            labelHashMap.get("tempDetail").setText(String.format("MAX : %1.0f°C / ", infoMain.getTemp_max() - 273.15) + String.format("MIN : %1.0f°C", infoMain.getTemp_min() - 273.15));
+            labelHashMap.get("windDetail").setText(String.format("%1.0fms / ", infoWind.getSpeed()) + String.format("%d°", infoWind.getDeg()));
+            labelHashMap.get("sunrise").setText("SUN RISE : " + sunriseCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunriseCalendar.get(Calendar.MINUTE));
+            labelHashMap.get("sunset").setText("SUN SET : " + sunsetCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunsetCalendar.get(Calendar.MINUTE));
 
-
-
-            labelHashMap.get("temp").setTextAndAdd(String.format("%1.0f°C", infoMain.getTemp() - 273.15), box);
-            labelHashMap.get("tempDetail").setTextAndAdd(String.format("MAX : %1.0f°C / ", infoMain.getTemp_max() - 273.15) + String.format("MIN : %1.0f°C", infoMain.getTemp_min() - 273.15), box);
-            tempDetail.add(labelHashMap.get("tempDetail"));
-
-            labelHashMap.get("windDetail").setTextAndAdd(String.format("%1.0fms / ", infoWind.getSpeed()) + String.format("%d°", infoWind.getDeg()), box);
-            windDetail.add(labelHashMap.get("windDetail"));
-
-            labelHashMap.get("sunrise").setTextAndAdd("SUN RISE : " + sunriseCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunriseCalendar.get(Calendar.MINUTE), box);
-            labelHashMap.get("sunset").setTextAndAdd("SUN SET : " + sunsetCalendar.get(Calendar.HOUR_OF_DAY) + ":" + sunsetCalendar.get(Calendar.MINUTE), box);
-            sunDetail.addAll(labelHashMap.get("sunrise"), labelHashMap.get("sunset"));
-
-            RobotoLabel title1 = new RobotoLabel();
             title1.setFontFromString(RobotoLabel.BOLD, 18f);
             title1.setColor(frontColor);
-            RobotoLabel title2 = new RobotoLabel();
             title2.setFontFromString(RobotoLabel.BOLD, 18f);
             title2.setColor(frontColor);
-            // Add All
+        }
+    }
+
+    boolean isFirst = true;
+
+    public void showWindow() {
+        getContentPane().setBackground(translucent);
+        setBackground(translucent);
+        setVisible(true);
+        // Add All
+        if (isFirst) {
+
+            tempDetail.add(labelHashMap.get("tempDetail"));
+            windDetail.add(labelHashMap.get("windDetail"));
+            sunDetail.addAll(labelHashMap.get("sunrise"), labelHashMap.get("sunset"));
+
             box.add(weatherStatus);
             box.add(labelHashMap.get("temp"));
             box.add(tempDetail);
@@ -128,48 +150,57 @@ public class WeatherView extends JFrame {
             box.add(sunIcon);
             box.add(title2.setTextAndReturn("Sun"));
             box.add(sunDetail);
-            box.add(selectLocationButton);
-            box.add(menu);
             add(box);
+            initMenu();
 
-            selectLocationButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    JButton button = (JButton) e.getSource();
-                    if(button.getText().equals("White")) {
-                        index = 0;
-                        frontColor = Color.black;
-                        title1.setColor(frontColor);
-                        title2.setColor(frontColor);
-                        Arrays.stream(jLabelProperties).forEach(string -> {
-                            RobotoLabel label = labelHashMap.get(string);
-                            label.setColor(frontColor);
-                        });
-                        // TODO 아이콘 색상값 바꿔줘야함.
-                        button.setText("Black");
-                    } else {
-                        frontColor = Color.WHITE;
-                        title1.setColor(frontColor);
-                        title2.setColor(frontColor);
-                        Arrays.stream(jLabelProperties).forEach(string -> {
-                            RobotoLabel label = labelHashMap.get(string);
-                            label.setColor(frontColor);
-                        });
-                        // TODO 아이콘 색상값 바꿔줘야함.
-                        button.setText("White");
-                    }
-                }
-            });
         }
-
-
+        isFirst = false;
     }
 
-    public void showWindow() {
-        getContentPane().setBackground(translucent);
-        setBackground(translucent);
-        setVisible(true);
+    String[] locations = {"Seoul", "Busan", "Daegu", "Gwang-ju", "Incheon", "Daejeon", "Ulsan",
+            "Gyeonggi-do", "Gangwon-do", "Chungcheongbuk-do", "Chungcheongnam-do", "Jeollabuk-do",
+            "Jeollanam-do", "Gyeongsangbuk-do", "Gyeongsangnam-do", "Jeju"};
 
+    public void initMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu viewMenu = new JMenu("View");
+
+        JMenuItem darkModeMenu = new JMenuItem("Dark Mode");
+        darkModeMenu.addActionListener(e -> {
+            frontColor = Color.BLACK;
+            title1.setColor(frontColor);
+            title2.setColor(frontColor);
+            Arrays.stream(jLabelProperties).forEach(string -> {
+                RobotoLabel label = labelHashMap.get(string);
+                label.setColor(frontColor);
+            });
+        });
+
+        JMenuItem whiteModeMenu = new JMenuItem("White Mode");
+        whiteModeMenu.addActionListener(e -> {
+            frontColor = Color.WHITE;
+            title1.setColor(frontColor);
+            title2.setColor(frontColor);
+            Arrays.stream(jLabelProperties).forEach(string -> {
+                RobotoLabel label = labelHashMap.get(string);
+                label.setColor(frontColor);
+            });
+        });
+        viewMenu.add(darkModeMenu);
+        viewMenu.add(whiteModeMenu);
+
+        JMenu locationSelectMenu = new JMenu("Location");
+        Arrays.stream(locations).forEach((String location) -> {
+            JMenuItem newLocationMenu = new JMenuItem(location);
+            newLocationMenu.addActionListener(e -> {
+                businessLogicMain(((JMenuItem) e.getSource()).getText());
+            });
+            locationSelectMenu.add(newLocationMenu);
+        });
+
+        menuBar.add(locationSelectMenu);
+        menuBar.add(viewMenu);
+        setJMenuBar(menuBar);
     }
 
     public void setPanelAttribute() {
@@ -181,20 +212,6 @@ public class WeatherView extends JFrame {
         tempDetail.setBackground(translucent);
         windDetail.setBackground(translucent);
         sunDetail.setBackground(translucent);
-    }
-
-    private static BufferedImage dye(BufferedImage image, Color color)
-    {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        BufferedImage dyed = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = dyed.createGraphics();
-        g.drawImage(image, 0,0, null);
-        g.setComposite(AlphaComposite.SrcAtop);
-        g.setColor(color);
-        g.fillRect(0,0,w,h);
-        g.dispose();
-        return dyed;
     }
 
 }

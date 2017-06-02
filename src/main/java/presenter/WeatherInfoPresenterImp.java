@@ -18,7 +18,6 @@ public class WeatherInfoPresenterImp implements WeatherInfoPresenter {
 
     public WeatherInfoPresenterImp() {
         retrofitManager = new RetrofitManager();
-        tempWeatherInfoMap = new HashMap<>();
     }
 
     @Override
@@ -26,35 +25,31 @@ public class WeatherInfoPresenterImp implements WeatherInfoPresenter {
         this.view = view;
     }
 
-    int index = 0;
-
     @Override
-    public void getData(String[] cities) {
-        for (String city : cities) {
-            System.out.println(city + " Detected");
-            retrofitManager
-                    .getWeatherInfoCall(city)
-                    .subscribe(new Observer<WeatherInfo>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-                        }
+    public void getData(String city) {
+        tempWeatherInfoMap = new HashMap<>();
+        System.out.println(city + " Detected");
+        retrofitManager
+                .getWeatherInfoCall(city)
+                .subscribe(new Observer<WeatherInfo>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
-                        @Override
-                        public void onNext(WeatherInfo weatherInfo) {
-                            tempWeatherInfoMap.put(weatherInfo.getName(), weatherInfo);
-                        }
+                    @Override
+                    public void onNext(WeatherInfo weatherInfo) {
+                        tempWeatherInfoMap.put(weatherInfo.getName(), weatherInfo);
+                    }
 
-                        @Override
-                        public void onError(Throwable e) {
-                        }
+                    @Override
+                    public void onError(Throwable e) {
+                    }
 
-                        @Override
-                        public void onComplete() {
-                            if (index == cities.length - 1) view.setView(tempWeatherInfoMap);
-                            else index++;
-                        }
-                    });
-        }
+                    @Override
+                    public void onComplete() {
+                        view.setView(tempWeatherInfoMap);
+                    }
+                });
 
 
     }

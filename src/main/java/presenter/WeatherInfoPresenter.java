@@ -12,7 +12,7 @@ interface WeatherInfoPresenter {
 
     void setWeatherInfoPresenter(WeatherInfoPresenter.View view);
 
-    void getData(String[] cities);
+    void getData(String city);
 
     interface View {
         void setView(HashMap<String, WeatherInfo> weatherInfoArrayList);
