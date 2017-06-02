@@ -7,13 +7,17 @@ import model.WeatherInfoWind;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 public class WeatherView extends JFrame {
+
+    private JButton selectLocationButton;
+    private JButton menu;
 
     private String[] jLabelProperties = {
             "temp",
@@ -35,23 +39,20 @@ public class WeatherView extends JFrame {
 
     private Color translucent = new Color(0, 0, 0, 0);
 
-    private HashMap<String, RobotoLabel> labelHashMap;
+    private HashMap<String, RobotoLabel> labelHashMap = new HashMap<>();
 
     private Box box = Box.createVerticalBox();
 
     private int index = 0;
 
-    // TODO 여기가 텍스트 전체 색상 바꾸는곳
     private Color frontColor = Color.WHITE;
 
     public WeatherView() {
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(325, 500);
+        setSize(325, 600);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPanelAttribute();
-
-        labelHashMap = new HashMap<>();
 
         Arrays.stream(jLabelProperties).forEach(string -> {
             RobotoLabel newLabel = new RobotoLabel(string);
@@ -68,6 +69,9 @@ public class WeatherView extends JFrame {
     WeatherPanel sunDetail = new WeatherPanel(BoxLayout.PAGE_AXIS);
 
     public void setWeatherData(HashMap<String, WeatherInfo> infoArrayList) throws IOException {
+        selectLocationButton = new JButton("White");
+        menu = new JButton("Menu");
+
         WeatherInfo info = (WeatherInfo) infoArrayList.values().toArray()[0];
 
         WeatherInfoMain infoMain = info.getMain();
@@ -86,11 +90,16 @@ public class WeatherView extends JFrame {
         if (loader != null) {
             // ICON
             String weatherIconCode = info.getWeather()[0].getIcon().replaceAll("(n+|d+)", "");
+            System.out.println(weatherIconCode);
             IconView weatherStatus = new IconView(50, 50, weatherIconCode + ".png");
             IconView windIcon = new IconView(30, 30, "ic_wind" + ".png");
             IconView sunIcon = new IconView(30, 30, "ic_wb_sunny" + ".png");
             windIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             sunIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            menu.addActionListener(new LocationMenu());
+
+
 
             labelHashMap.get("temp").setTextAndAdd(String.format("%1.0f°C", infoMain.getTemp() - 273.15), box);
             labelHashMap.get("tempDetail").setTextAndAdd(String.format("MAX : %1.0f°C / ", infoMain.getTemp_max() - 273.15) + String.format("MIN : %1.0f°C", infoMain.getTemp_min() - 273.15), box);
@@ -119,8 +128,40 @@ public class WeatherView extends JFrame {
             box.add(sunIcon);
             box.add(title2.setTextAndReturn("Sun"));
             box.add(sunDetail);
+            box.add(selectLocationButton);
+            box.add(menu);
             add(box);
+
+            selectLocationButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JButton button = (JButton) e.getSource();
+                    if(button.getText().equals("White")) {
+                        index = 0;
+                        frontColor = Color.black;
+                        title1.setColor(frontColor);
+                        title2.setColor(frontColor);
+                        Arrays.stream(jLabelProperties).forEach(string -> {
+                            RobotoLabel label = labelHashMap.get(string);
+                            label.setColor(frontColor);
+                        });
+                        // TODO 아이콘 색상값 바꿔줘야함.
+                        button.setText("Black");
+                    } else {
+                        frontColor = Color.WHITE;
+                        title1.setColor(frontColor);
+                        title2.setColor(frontColor);
+                        Arrays.stream(jLabelProperties).forEach(string -> {
+                            RobotoLabel label = labelHashMap.get(string);
+                            label.setColor(frontColor);
+                        });
+                        // TODO 아이콘 색상값 바꿔줘야함.
+                        button.setText("White");
+                    }
+                }
+            });
         }
+
 
     }
 
@@ -140,6 +181,20 @@ public class WeatherView extends JFrame {
         tempDetail.setBackground(translucent);
         windDetail.setBackground(translucent);
         sunDetail.setBackground(translucent);
+    }
+
+    private static BufferedImage dye(BufferedImage image, Color color)
+    {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage dyed = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = dyed.createGraphics();
+        g.drawImage(image, 0,0, null);
+        g.setComposite(AlphaComposite.SrcAtop);
+        g.setColor(color);
+        g.fillRect(0,0,w,h);
+        g.dispose();
+        return dyed;
     }
 
 }

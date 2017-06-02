@@ -17,6 +17,7 @@ public class Main implements WeatherInfoPresenterImp.View {
         Main main = new Main();
         main.weatherView = new WeatherView();
         main.businessLogicMain();
+
     }
 
     public void businessLogicMain() {
