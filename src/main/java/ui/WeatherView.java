@@ -135,8 +135,9 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
         setBackground(translucent);
         setVisible(true);
         // Add All
-        if (isFirst) {
 
+
+        if (isFirst) {
             tempDetail.add(labelHashMap.get("tempDetail"));
             windDetail.add(labelHashMap.get("windDetail"));
             sunDetail.addAll(labelHashMap.get("sunrise"), labelHashMap.get("sunset"));
@@ -150,10 +151,15 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
             box.add(sunIcon);
             box.add(title2.setTextAndReturn("Sun"));
             box.add(sunDetail);
+
             add(box);
             initMenu();
-
+        } else {
+            box.remove(0);
+            box.add(weatherStatus, 0);
+            // 이미지 갱신
         }
+
         isFirst = false;
     }
 
