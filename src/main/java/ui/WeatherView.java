@@ -57,7 +57,7 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
     IconView sunIcon;
 
     public WeatherView() {
-        setTitle("Widther");
+        setTitle("Weather");
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(325, 600);
@@ -164,8 +164,7 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
     }
 
     String[] locations = {"Seoul", "Busan", "Daegu", "Gwang-ju", "Incheon", "Daejeon", "Ulsan",
-            "Gyeonggi-do", "Gangwon-do", "Chungcheongbuk-do", "Chungcheongnam-do", "Jeollabuk-do",
-            "Jeollanam-do", "Gyeongsangbuk-do", "Gyeongsangnam-do", "Jeju"};
+            "Gyeonggi-do"};
 
     public void initMenu() {
         JMenuBar menuBar = new JMenuBar();
