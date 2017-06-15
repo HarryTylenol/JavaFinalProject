@@ -60,7 +60,7 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
         setTitle("Weather");
         setUndecorated(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(325, 600);
+        setSize(300, 400);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPanelAttribute();
 
@@ -110,10 +110,6 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
             String weatherIconCode = info.getWeather()[0].getIcon().replaceAll("(n+|d+)", "");
             System.out.println(weatherIconCode);
             weatherStatus = new IconView(50, 50, weatherIconCode + ".png");
-            windIcon = new IconView(30, 30, "ic_wind" + ".png");
-            sunIcon = new IconView(30, 30, "ic_wb_sunny" + ".png");
-            windIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            sunIcon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
             labelHashMap.get("temp").setText(String.format("%1.0f°C", infoMain.getTemp() - 273.15));
             labelHashMap.get("tempDetail").setText(String.format("MAX : %1.0f°C / ", infoMain.getTemp_max() - 273.15) + String.format("MIN : %1.0f°C", infoMain.getTemp_min() - 273.15));
@@ -145,10 +141,8 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
             box.add(weatherStatus);
             box.add(labelHashMap.get("temp"));
             box.add(tempDetail);
-            box.add(windIcon);
             box.add(title1.setTextAndReturn("Wind"));
             box.add(windDetail);
-            box.add(sunIcon);
             box.add(title2.setTextAndReturn("Sun"));
             box.add(sunDetail);
 
