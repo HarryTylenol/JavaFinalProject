@@ -53,8 +53,6 @@ public class WeatherView extends JFrame implements WeatherInfoPresenterImp.View 
     private RobotoLabel title2 = new RobotoLabel();
 
     IconView weatherStatus;
-    IconView windIcon;
-    IconView sunIcon;
 
     public WeatherView() {
         setTitle("Weather");
