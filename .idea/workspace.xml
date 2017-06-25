@@ -1214,7 +1214,7 @@
       <workItem from="1497336165977" duration="232000" />
       <workItem from="1497337024862" duration="4792000" />
       <workItem from="1497439602666" duration="190000" />
-      <workItem from="1498348974830" duration="358000" />
+      <workItem from="1498348974830" duration="373000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;Fucking Location Remove&quot;">
       <created>1496466598900</created>
@@ -1237,11 +1237,18 @@
       <option name="project" value="LOCAL" />
       <updated>1498349602898</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Final">
+      <created>1498349618897</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1498349618897</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65679000" />
+    <option name="totallyTimeSpent" value="65694000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1316,7 +1323,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="&quot;Fucking Location Remove&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;Fucking Location Remove&quot;" />
+    <MESSAGE value="Final" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
